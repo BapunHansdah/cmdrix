@@ -1,0 +1,287 @@
+﻿<Window x:Class="cmdrix.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="cmdrix" 
+        SizeToContent="Height"
+        Width="600"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ResizeMode="NoResize"
+        KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <Style x:Key="ModernScrollBar" TargetType="{x:Type ScrollBar}">
+            <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
+            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Width" Value="6" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid x:Name="GridRoot" Width="6" Background="{TemplateBinding Background}">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true" Focusable="false">
+                                <Track.Thumb>
+                                    <Thumb x:Name="Thumb">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="{x:Type Thumb}">
+                                                <Border x:Name="ThumbBorder" 
+                                                        Background="#555555" 
+                                                        CornerRadius="3"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#888888" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="true">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#AAAAAA" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Style="{StaticResource ModernScrollBar}"/>
+                            <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Height="6" Style="{StaticResource ModernScrollBar}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="#F21E1E1E" 
+            BorderBrush="#333333" 
+            BorderThickness="1"
+            CornerRadius="6"
+            Padding="12"
+            MouseLeftButtonDown="Border_MouseLeftButtonDown">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="cmdrix"
+                           Foreground="#555555"
+                           FontFamily="Consolas"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="−" Width="20" Height="20"
+                            Background="Transparent" Foreground="#888888"
+                            BorderThickness="0" FontSize="16"
+                            Padding="0,-4,0,0" Margin="0,0,5,0"
+                            Click="MinimizeButton_Click" Cursor="Hand"
+                            ToolTip="Minimize"/>
+                    <Button Content="×" Width="20" Height="20"
+                            Background="Transparent" Foreground="#CC4444"
+                            BorderThickness="0" FontSize="16"
+                            Padding="0,-2,0,0"
+                            Click="CloseButton_Click" Cursor="Hand"
+                            ToolTip="Exit"/>
+                </StackPanel>
+            </Grid>
+
+            <ScrollViewer x:Name="OutputScroll" 
+                          Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          MaxHeight="400" 
+                          Margin="0,0,0,5">
+                <TextBlock x:Name="OutputText"
+                           Foreground="#D4D4D4"
+                           FontFamily="Consolas"
+                           FontSize="13"
+                           LineHeight="18"
+                           TextWrapping="Wrap"/>
+            </ScrollViewer>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="❯" 
+                           Foreground="#00FF99"
+                           FontFamily="Consolas"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,1"/>
+
+                <TextBox x:Name="InputBox"
+                         Grid.Column="1"
+                         Background="Transparent"
+                         Foreground="#FFFFFF"
+                         BorderThickness="0"
+                         FontFamily="Consolas"
+                         FontSize="14"
+                         CaretBrush="#00FF99"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         TextChanged="InputBox_TextChanged"
+                         PreviewKeyDown="InputBox_PreviewKeyDown"/>
+
+                <Popup x:Name="AutocompletePopup"
+                       Grid.Column="1"
+                       PlacementTarget="{Binding ElementName=InputBox}"
+                       Placement="Top"
+                       IsOpen="False"
+                       StaysOpen="False"
+                       AllowsTransparency="True"
+                       PopupAnimation="Slide">
+                    <Border Background="#252526"
+                            BorderBrush="#444444"
+                            BorderThickness="1"
+                            CornerRadius="0"
+                            MaxHeight="150"
+                            Width="400">
+                        <ListBox x:Name="AutocompleteList"
+                                 Background="Transparent"
+                                 Foreground="#CCCCCC"
+                                 BorderThickness="0"
+                                 FontFamily="Consolas"
+                                 FontSize="12"
+                                 SelectionChanged="AutocompleteList_SelectionChanged"
+                                 PreviewKeyDown="AutocompleteList_PreviewKeyDown"/>
+                    </Border>
+                </Popup>
+            </Grid>
+
+            <Border x:Name="PreviewPanel"
+                    Grid.Row="1" Grid.RowSpan="2"
+                    Background="#F01E1E1E"
+                    BorderBrush="#444444"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="15"
+                    Visibility="Collapsed"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,0,40">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="PREVIEW" Foreground="#00FF99" FontFamily="Consolas" FontSize="10" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <Border Grid.Row="1" x:Name="SafetyIndicator" Background="#CC3333" CornerRadius="2" Padding="6,2" HorizontalAlignment="Left" Margin="0,0,0,8">
+                        <TextBlock x:Name="SafetyText" Text="⚠ DANGER" Foreground="White" FontFamily="Consolas" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                    <TextBlock Grid.Row="2" x:Name="PreviewCommandText" Foreground="#D4D4D4" FontFamily="Consolas" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,15"/>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Execute" Background="#333333" Foreground="White" BorderThickness="0" Padding="12,6" Margin="0,0,8,0" FontFamily="Consolas" Click="ExecuteButton_Click"/>
+                        <Button Content="Cancel" Background="Transparent" Foreground="#888888" BorderThickness="1" BorderBrush="#444444" Padding="12,6" FontFamily="Consolas" Click="CancelButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border x:Name="NoteEditorPanel"
+                    Grid.RowSpan="3"
+                    Background="#1E1E1E"
+                    BorderBrush="#333333"
+                    BorderThickness="0"
+                    Padding="20"
+                    Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" x:Name="NoteEditorTitle" Text="New Note" Foreground="#00FF99" FontFamily="Consolas" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+                    <TextBox Grid.Row="1" x:Name="NoteEditorTextBox" Background="#252526" Foreground="#D4D4D4" BorderThickness="0" FontFamily="Consolas" FontSize="13" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="10" Margin="0,0,0,15"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Save" Background="#2E8B57" Foreground="White" BorderThickness="0" Padding="20,8" Margin="0,0,10,0" FontFamily="Consolas" Click="SaveNoteButton_Click"/>
+                        <Button Content="Cancel" Background="#333333" Foreground="#AAAAAA" BorderThickness="0" Padding="20,8" FontFamily="Consolas" Click="CancelNoteButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border x:Name="NotesListModal"
+                    Grid.RowSpan="3"
+                    Background="#E6111111"
+                    Visibility="Collapsed">
+                <Border Background="#1E1E1E" BorderBrush="#333333" BorderThickness="0" CornerRadius="0" MaxWidth="700" MaxHeight="600" Margin="0" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Margin="0,0,0,15">
+                            <TextBlock Text="NOTES" Foreground="#00FF99" FontFamily="Consolas" FontSize="16" FontWeight="Bold"/>
+                            <Button Content="×" HorizontalAlignment="Right" Background="Transparent" Foreground="#888888" BorderThickness="0" FontSize="20" Click="CloseNotesListModal_Click"/>
+                        </Grid>
+                        <TextBox x:Name="NotesSearchBox" Grid.Row="1" Background="#252526" Foreground="#D4D4D4" BorderThickness="0" FontFamily="Consolas" FontSize="13" Padding="8" Margin="0,0,0,15" TextChanged="NotesSearchBox_TextChanged"/>
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="NotesListView">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#252526" CornerRadius="3" Padding="10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" Text="{Binding Content}" Foreground="#D4D4D4" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" MaxHeight="80" Margin="0,0,0,6"/>
+                                                <Grid Grid.Row="1" Margin="0,0,0,6">
+                                                    <TextBlock Text="{Binding CreatedAtDisplay}" Foreground="#666666" FontFamily="Consolas" FontSize="10"/>
+                                                </Grid>
+                                                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                    <Button Content="Edit" Background="Transparent" Foreground="#4DAAF2" BorderThickness="0" FontSize="11" Margin="0,0,10,0" FontFamily="Consolas" Tag="{Binding Id}" Click="EditNoteFromList_Click"/>
+                                                    <Button Content="Del" Background="Transparent" Foreground="#CC4444" BorderThickness="0" FontSize="11" FontFamily="Consolas" Tag="{Binding Id}" Click="DeleteNoteFromList_Click"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <Button Grid.Row="3" Content="+ Add Note" Background="#333333" Foreground="#D4D4D4" BorderThickness="0" Padding="0,10" Margin="0,15,0,0" FontFamily="Consolas" Click="NewNoteFromList_Click"/>
+                    </Grid>
+                </Border>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>
