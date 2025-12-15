@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="cmdrix" 
+        Icon="/cmdrix.png"
         SizeToContent="Height"
         Width="600"
         WindowStyle="None"

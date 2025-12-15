@@ -13,7 +13,15 @@
 	  <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="cmdrix.png" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="cmdrix.png" />
 	</ItemGroup>
 </Project>
