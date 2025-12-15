@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using cmdrix.Services;
 using cmdrix.Models;
 using System.Collections.Generic;
@@ -37,6 +39,20 @@ namespace cmdrix
             "/help"
         };
 
+        // Global hotkey registration
+        private const int HOTKEY_ID = 9000;
+        private const uint MOD_CONTROL = 0x0002;
+        private const uint VK_SPACE = 0x20;
+
+        [DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+        private IntPtr _windowHandle;
+        private HwndSource _source;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -50,6 +66,50 @@ namespace cmdrix
 
             LoadConfiguration();
             InputBox.Focus();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            // Get window handle and register global hotkey
+            _windowHandle = new WindowInteropHelper(this).Handle;
+            _source = HwndSource.FromHwnd(_windowHandle);
+            _source.AddHook(HwndHook);
+
+            // Register Ctrl+Space as global hotkey
+            RegisterHotKey(_windowHandle, HOTKEY_ID, MOD_CONTROL, VK_SPACE);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // Unregister hotkey when window closes
+            _source.RemoveHook(HwndHook);
+            UnregisterHotKey(_windowHandle, HOTKEY_ID);
+            base.OnClosed(e);
+        }
+
+        private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            const int WM_HOTKEY = 0x0312;
+
+            if (msg == WM_HOTKEY && wParam.ToInt32() == HOTKEY_ID)
+            {
+                // Toggle window visibility
+                if (this.Visibility == Visibility.Visible)
+                {
+                    this.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    this.Visibility = Visibility.Visible;
+                    this.Activate();
+                    InputBox.Focus();
+                }
+                handled = true;
+            }
+
+            return IntPtr.Zero;
         }
 
         private void LoadConfiguration()
@@ -450,7 +510,7 @@ namespace cmdrix
             AddToOutput("  /help                - Show this help");
             AddToOutput("\nKeyboard Shortcuts:");
             AddToOutput("  Enter              - Execute command");
-            AddToOutput("  Ctrl+Space         - Hide/Show window");
+            AddToOutput("  Ctrl+Space         - Hide/Show window (GLOBAL)");
             AddToOutput("  ↑/↓                - Navigate command history");
             AddToOutput("  Esc                - Cancel/Clear");
             AddToOutput("  Tab                - Accept autocomplete");
@@ -708,18 +768,8 @@ namespace cmdrix
                 return;
             }
 
-            // Global hotkey to hide/show (Ctrl+Space)
-            if (e.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                this.Visibility = this.Visibility == Visibility.Visible
-                    ? Visibility.Hidden
-                    : Visibility.Visible;
-                if (this.Visibility == Visibility.Visible)
-                {
-                    this.Activate();
-                    InputBox.Focus();
-                }
-            }
+            // Note: Ctrl+Space is now handled globally via RegisterHotKey
+            // No need to handle it here anymore
         }
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
