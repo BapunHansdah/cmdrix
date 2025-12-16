@@ -228,7 +228,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" x:Name="NoteEditorTitle" Text="New Note" Foreground="#00FF99" FontFamily="Consolas" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
-                    <TextBox Grid.Row="1" x:Name="NoteEditorTextBox" Background="#252526" Foreground="#D4D4D4" BorderThickness="0" FontFamily="Consolas" FontSize="13" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="10" Margin="0,0,0,15"/>
+                    <TextBox Grid.Row="1" x:Name="NoteEditorTextBox" Background="#252526" Foreground="#D4D4D4" BorderThickness="0" FontFamily="Consolas" FontSize="13" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="300" Padding="10" Margin="0,0,0,15"/>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Save" Background="#2E8B57" Foreground="White" BorderThickness="0" Padding="20,8" Margin="0,0,10,0" FontFamily="Consolas" Click="SaveNoteButton_Click"/>
                         <Button Content="Cancel" Background="#333333" Foreground="#AAAAAA" BorderThickness="0" Padding="20,8" FontFamily="Consolas" Click="CancelNoteButton_Click"/>
