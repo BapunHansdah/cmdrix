@@ -9,37 +9,37 @@
         ShowInTaskbar="False"
         Background="Black"
         KeyDown="Window_KeyDown">
-    
+
     <Grid>
         <!-- Screenshot Image -->
         <Image x:Name="ScreenshotImage" 
                Stretch="Uniform"
                Opacity="0.9"/>
-        
+
         <!-- Selection Canvas -->
         <Canvas x:Name="SelectionCanvas"
                 Background="Transparent"
                 MouseLeftButtonDown="SelectionCanvas_MouseLeftButtonDown"
                 MouseMove="SelectionCanvas_MouseMove"
                 MouseLeftButtonUp="SelectionCanvas_MouseLeftButtonUp">
-            
+
             <!-- Dim Overlays (4 rectangles around selection) -->
             <Rectangle x:Name="DimOverlay1"
                        Fill="#80000000"
                        Visibility="Collapsed"/>
-            
+
             <Rectangle x:Name="DimOverlay2"
                        Fill="#80000000"
                        Visibility="Collapsed"/>
-            
+
             <Rectangle x:Name="DimOverlay3"
                        Fill="#80000000"
                        Visibility="Collapsed"/>
-            
+
             <Rectangle x:Name="DimOverlay4"
                        Fill="#80000000"
                        Visibility="Collapsed"/>
-            
+
             <!-- Selection Rectangle -->
             <Rectangle x:Name="SelectionRectangle"
                        Stroke="#2196F3"
@@ -47,18 +47,18 @@
                        Fill="Transparent"
                        Visibility="Collapsed"/>
         </Canvas>
-        
+
         <!-- Button Panel -->
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Bottom"
                     Margin="0,0,0,40">
-            
+
             <Button x:Name="ConfirmButton"
                     Content="✅ Confirm"
-                    FontSize="16"
-                    Padding="20,12"
-                    Margin="0,0,12,0"
+                    FontSize="12"
+                    Padding="12,6"
+                    Margin="0,0,8,0"
                     IsEnabled="False"
                     Click="ConfirmButton_Click">
                 <Button.Style>
@@ -71,7 +71,7 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="8"
+                                            CornerRadius="0"
                                             Padding="{TemplateBinding Padding}">
                                         <ContentPresenter HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"/>
@@ -90,11 +90,11 @@
                     </Style>
                 </Button.Style>
             </Button>
-            
+
             <Button x:Name="CancelButton"
                     Content="❌ Cancel"
-                    FontSize="16"
-                    Padding="20,12"
+                    FontSize="12"
+                    Padding="12,6"
                     Click="CancelButton_Click">
                 <Button.Style>
                     <Style TargetType="Button">
@@ -106,7 +106,7 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="8"
+                                            CornerRadius="0"
                                             Padding="{TemplateBinding Padding}">
                                         <ContentPresenter HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"/>
@@ -123,7 +123,7 @@
                 </Button.Style>
             </Button>
         </StackPanel>
-        
+
         <!-- Instructions -->
         <TextBlock Text="Click and drag to select an area • ESC to cancel • ENTER to confirm"
                    Foreground="White"

@@ -657,6 +657,26 @@ namespace cmdrix
             InputBox.Focus();
             _currentPreview = null;
         }
+        private string StripMarkdown(string markdown)
+        {
+            // Remove bold **text**
+            markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\*\*(.+?)\*\*", "$1");
+
+            // Remove italic *text*
+            markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\*(.+?)\*", "$1");
+
+            // Remove headers ###
+            markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"^#+\s+", "",
+                System.Text.RegularExpressions.RegexOptions.Multiline);
+
+            // Remove code blocks ```
+            markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"```[\s\S]*?```", "[code block]");
+
+            // Remove inline code `text`
+            markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"`(.+?)`", "$1");
+
+            return markdown;
+        }
 
         private void AddToOutput(string message)
         {
@@ -665,6 +685,8 @@ namespace cmdrix
                 OutputScroll.Visibility = Visibility.Visible;
                 this.Height = 430;
             }
+
+            message = StripMarkdown(message);
 
             OutputText.Text += $"{message}\n";
             OutputScroll.ScrollToBottom();

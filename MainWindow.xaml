@@ -124,12 +124,18 @@
                           VerticalScrollBarVisibility="Auto"
                           MaxHeight="400" 
                           Margin="0,0,0,5">
-                <TextBlock x:Name="OutputText"
-                           Foreground="#D4D4D4"
-                           FontFamily="Consolas"
-                           FontSize="13"
-                           LineHeight="18"
-                           TextWrapping="Wrap"/>
+                <TextBox x:Name="OutputText"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Foreground="White"
+                     FontFamily="Consolas"
+                     FontSize="13"
+                     Padding="0"
+                     Cursor="Arrow"
+                     IsTabStop="False"
+                     Focusable="True"/>
             </ScrollViewer>
 
             <Grid Grid.Row="2">
