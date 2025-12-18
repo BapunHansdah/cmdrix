@@ -44,11 +44,17 @@ namespace cmdrix
         private const uint MOD_CONTROL = 0x0002;
         private const uint VK_SPACE = 0x20;
 
+        // Screen capture protection
+        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
+
         [DllImport("user32.dll")]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
         [DllImport("user32.dll")]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowDisplayAffinity(IntPtr hwnd, uint affinity);
 
         private IntPtr _windowHandle;
         private HwndSource _source;
@@ -72,13 +78,36 @@ namespace cmdrix
         {
             base.OnSourceInitialized(e);
 
-            // Get window handle and register global hotkey
+            // Get window handle
             _windowHandle = new WindowInteropHelper(this).Handle;
             _source = HwndSource.FromHwnd(_windowHandle);
             _source.AddHook(HwndHook);
 
             // Register Ctrl+Space as global hotkey
             RegisterHotKey(_windowHandle, HOTKEY_ID, MOD_CONTROL, VK_SPACE);
+
+            // Make window uncapturable in screen sharing/recording
+            MakeWindowUncapturable();
+        }
+
+        private void MakeWindowUncapturable()
+        {
+            try
+            {
+                bool success = SetWindowDisplayAffinity(_windowHandle, WDA_EXCLUDEFROMCAPTURE);
+                if (success)
+                {
+                    System.Diagnostics.Debug.WriteLine("Window is now hidden from screen capture");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Failed to hide window from screen capture");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error setting display affinity: {ex.Message}");
+            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -235,10 +264,11 @@ namespace cmdrix
                 }
                 else if (input.StartsWith("/screenshot"))
                 {
-                    var question = input.Substring(11).Trim();
-                    AddToOutput("📸 Taking screenshot...");
-                    var result = await _screenshotService.CaptureAndAnalyze(question);
-                    AddToOutput(result);
+                    await HandleScreenshotCommand(input);
+                    //var question = input.Substring(11).Trim();
+                    //AddToOutput("📸 Taking screenshot...");
+                    //var result = await _screenshotService.CaptureAndAnalyze(question);
+                    //AddToOutput(result);
                 }
                 else if (input == "/help")
                 {
@@ -493,6 +523,49 @@ namespace cmdrix
             }
         }
 
+        private async System.Threading.Tasks.Task HandleScreenshotCommand(string input)
+        {
+            try
+            {
+                var question = input.Substring(11).Trim(); // Remove "/screenshot"
+                bool selectArea = false;
+
+                // Check for -s flag
+                if (question.StartsWith("-s"))
+                {
+                    selectArea = true;
+                    question = question.Substring(2).Trim();
+
+                    // Hide the main window before showing selection
+                    this.Visibility = Visibility.Hidden;
+
+                    // Small delay to ensure window is hidden
+                    await System.Threading.Tasks.Task.Delay(200);
+                }
+
+                AddToOutput("📸 Taking screenshot...");
+                var result = await _screenshotService.CaptureAndAnalyze(
+                    selectArea ? $"-s {question}" : question
+                );
+
+                // Show the main window again
+                if (selectArea)
+                {
+                    this.Visibility = Visibility.Visible;
+                    this.Activate();
+                    InputBox.Focus();
+                }
+
+                AddToOutput(result);
+            }
+            catch (Exception ex)
+            {
+                // Make sure window is visible even if error occurs
+                this.Visibility = Visibility.Visible;
+                AddToOutput($"❌ Screenshot error: {ex.Message}");
+            }
+        }
+
         private void ShowHelp()
         {
             AddToOutput("cmdrix - AI-Powered Terminal Assistant\n");
@@ -501,6 +574,7 @@ namespace cmdrix
             AddToOutput("  /notes [content]     - Quick note or open notes list");
             AddToOutput("  /notes list          - Open notes list modal");
             AddToOutput("  /screenshot [query]  - Capture screen and analyze");
+            AddToOutput("  /screenshot -s [query] - Select area and analyze");
             AddToOutput("  /config              - View current configuration");
             AddToOutput("  /config apikey KEY   - Set Gemini API key");
             AddToOutput("  /config opacity 0-255 - Set background transparency");
@@ -517,7 +591,10 @@ namespace cmdrix
             AddToOutput("  Click & Drag       - Move window");
             AddToOutput("\nChat:");
             AddToOutput("  Type anything without / to chat with AI");
+            AddToOutput("\nPrivacy:");
+            AddToOutput("  ✓ Window is hidden from screen capture and screen sharing");
         }
+
 
         private void UpdateOpacity(byte opacity)
         {

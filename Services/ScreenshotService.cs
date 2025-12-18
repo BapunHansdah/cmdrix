@@ -4,9 +4,9 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Windows.Media;
+using System.Windows;
 using cmdrix.Models;
-
+using cmdrix.UI;
 
 namespace cmdrix.Services
 {
@@ -24,18 +24,45 @@ namespace cmdrix.Services
             _geminiApiKey = config.GeminiApiKey;
         }
 
-        public async Task<string> CaptureAndAnalyze(string question)
+        public async Task<string> CaptureAndAnalyze(string input)
         {
             try
             {
-                // Capture screenshot
-                var screenshot = CaptureScreen();
+                // Parse input for -s flag and question
+                bool selectArea = false;
+                string question = input;
+
+                if (input.StartsWith("-s"))
+                {
+                    selectArea = true;
+                    question = input.Substring(2).Trim();
+                }
+
+                Bitmap screenshot;
+
+                if (selectArea)
+                {
+                    // Show selection window
+                    screenshot = await CaptureSelectedArea();
+
+                    if (screenshot == null)
+                    {
+                        return "❌ Screenshot cancelled";
+                    }
+                }
+                else
+                {
+                    // Capture full screen
+                    screenshot = CaptureScreen();
+                }
+
                 var base64Image = ConvertToBase64(screenshot);
 
                 // If no question, just save the screenshot
                 if (string.IsNullOrWhiteSpace(question))
                 {
                     var filename = SaveScreenshot(screenshot);
+                    screenshot.Dispose();
                     return $"✓ Screenshot saved: {filename}";
                 }
 
@@ -44,6 +71,7 @@ namespace cmdrix.Services
 
                 // Save screenshot
                 var savedFilename = SaveScreenshot(screenshot);
+                screenshot.Dispose();
 
                 return $"{analysis}\n\n📁 Screenshot saved: {savedFilename}";
             }
@@ -51,6 +79,23 @@ namespace cmdrix.Services
             {
                 return $"❌ Screenshot error: {ex.Message}";
             }
+        }
+
+        private async Task<Bitmap> CaptureSelectedArea()
+        {
+            // Use Dispatcher to ensure UI operations happen on the UI thread
+            return await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var selectionWindow = new ScreenshotSelectionWindow();
+                selectionWindow.ShowDialog();
+
+                if (selectionWindow.WasCancelled)
+                {
+                    return null;
+                }
+
+                return selectionWindow.SelectedScreenshot;
+            });
         }
 
         private Bitmap CaptureScreen()
@@ -70,7 +115,7 @@ namespace cmdrix.Services
 
             using (var graphics = Graphics.FromImage(bitmap))
             {
-                graphics.CopyFromScreen(0, 0, 0, 0, new Size(screenWidth, screenHeight), CopyPixelOperation.SourceCopy);
+                graphics.CopyFromScreen(0, 0, 0, 0, new System.Drawing.Size(screenWidth, screenHeight), CopyPixelOperation.SourceCopy);
             }
 
             return bitmap;
