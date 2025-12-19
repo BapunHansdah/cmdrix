@@ -56,6 +56,7 @@ dotnet run
 | `/notes [content]` | Quick note creation or open notes list |
 | `/notes list` | Open notes management modal |
 | `/screenshot [query]` | Capture screen and analyze with AI |
+| `/screenshot -s [query]` | Select area and analyze with AI |
 | `/config` | View current configuration |
 | `/config apikey KEY` | Set your Gemini API key |
 | `/config opacity 0-255` | Adjust window transparency |
@@ -63,6 +64,7 @@ dotnet run
 | `/clear` | Clear output history |
 | `/help` | Show help information |
 | `/exit` | Exit cmdrix |
+
 
 ### Keyboard Shortcuts
 
@@ -98,6 +100,11 @@ dotnet run
 /screenshot what error is shown?
 📸 Taking screenshot...
 [AI analyzes and explains the error on screen]
+```
+
+**Privacy focus:**
+```
+ App Window is hidden from screen capture and screen sharing
 ```
 
 ## 🤝 Contributing
